@@ -1,10 +1,7 @@
 package com.rosafi.test.data.remote
 
 
-import com.rosafi.test.data.model.Delivery
-import com.rosafi.test.data.model.DoneRequestBody
-import com.rosafi.test.data.model.ClientDoneResponse
-import com.rosafi.test.data.model.VerificationRequestBody
+import com.rosafi.test.data.model.*
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -17,12 +14,12 @@ interface API {
 
 
     @POST("elements/mark_as_done_by_sender")
-    suspend fun confirmDeliveryByCarrier(@Body confirmationBody: DoneRequestBody): Response<ClientDoneResponse>
+    suspend fun confirmDeliveryByCarrier(@Body confirmationBody: DoneRequestBody): Response<CarrierDoneResponse>
 
     @POST("elements/mark_as_done_by_receiver")
     suspend fun confirmDeliveryByClient(@Body confirmationBody: DoneRequestBody): Response<ClientDoneResponse>
 
     @POST("elements/verify-code")
-    suspend fun verifyConfirmationCode(@Body verificationRequestBody: VerificationRequestBody): Response<ClientDoneResponse>
+    suspend fun verifyConfirmationCode(@Body verificationRequestBody: VerificationRequestBody): Response<DeliveryStatus>
 
 }

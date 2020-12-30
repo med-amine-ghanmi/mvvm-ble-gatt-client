@@ -45,4 +45,19 @@ class DeliveriesViewModel : ViewModel() {
     }
 
 
+    fun markDeliveryAsDoneByCarrier(){
+
+        viewModelScope.launch {
+            repository.getDeliveries.flowOn(Dispatchers.IO).collect {
+
+                _deliveriesLiveData.postValue(it)
+
+            }
+        }
+
+    }
+
+
+
+
 }

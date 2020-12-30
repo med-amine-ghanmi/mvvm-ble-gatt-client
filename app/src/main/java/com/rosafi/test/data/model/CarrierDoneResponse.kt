@@ -5,7 +5,5 @@ import com.google.gson.annotations.SerializedName
 
 data class CarrierDoneResponse(
     @SerializedName("status")
-    val status: String?,
-    @SerializedName("confirmation_code")
-    val confirmationCode: String?
+    val status: String?
 )
