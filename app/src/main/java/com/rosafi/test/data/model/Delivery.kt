@@ -16,9 +16,4 @@ data class Delivery(
     val updatedAt: String?,
     @SerializedName("uuid")
     val uuid: String?
-){
-
-
-
-}
-
+)

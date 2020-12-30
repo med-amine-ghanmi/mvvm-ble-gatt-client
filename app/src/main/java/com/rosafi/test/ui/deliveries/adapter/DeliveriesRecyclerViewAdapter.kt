@@ -7,6 +7,7 @@ import com.rosafi.test.R
 import com.rosafi.test.data.model.Delivery
 import com.rosafi.test.databinding.ItemDeliveryLayoutBinding
 import com.rosafi.test.ui.deliveries.DeliveriesViewModel
+import com.rosafi.test.utils.Util
 
 class DeliveriesRecyclerViewAdapter(private val deliveriesList: ArrayList<Delivery>) :
     RecyclerView.Adapter<DeliveriesRecyclerViewAdapter.DeliveriesViewHolder>()  {
@@ -32,11 +33,11 @@ class DeliveriesRecyclerViewAdapter(private val deliveriesList: ArrayList<Delive
     }
 
     private fun checkDeliveryStatus(deliveryStatus: String?) : Boolean{
-        return deliveryStatus == "done"
+        return deliveryStatus == Util.getFormattedDeliveryStatus(deliveryStatus)
     }
 
     private fun getDeliveryStatusColor(deliveryStatus: String?) : Int{
-        return if (deliveryStatus == "done") R.color.doneBgColor else R.color.pendingBgColor
+        return if (deliveryStatus == "pending") R.color.pendingBgColor else R.color.doneBgColor
     }
 
     inner class DeliveriesViewHolder(val binding: ItemDeliveryLayoutBinding) : RecyclerView.ViewHolder(binding.root)

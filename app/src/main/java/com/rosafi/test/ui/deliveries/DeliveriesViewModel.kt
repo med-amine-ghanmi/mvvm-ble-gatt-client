@@ -31,5 +31,18 @@ class DeliveriesViewModel : ViewModel() {
 
     }
 
+    fun markDeliveryAsDoneByClient(){
+
+        viewModelScope.launch {
+            repository.getDeliveries.flowOn(Dispatchers.IO).collect {
+
+                _deliveriesLiveData.postValue(it)
+
+            }
+        }
+
+
+    }
+
 
 }
