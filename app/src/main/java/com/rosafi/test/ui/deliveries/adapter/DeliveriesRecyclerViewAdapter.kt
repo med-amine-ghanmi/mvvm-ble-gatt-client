@@ -33,7 +33,7 @@ class DeliveriesRecyclerViewAdapter(private val deliveriesList: ArrayList<Delive
     }
 
     private fun checkDeliveryStatus(deliveryStatus: String?) : Boolean{
-        return deliveryStatus == "done_by_sender"
+        return deliveryStatus != "pending"
     }
 
     private fun getDeliveryStatusColor(deliveryStatus: String?) : Int{
