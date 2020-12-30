@@ -5,5 +5,5 @@ import com.google.gson.annotations.SerializedName
 
 data class PendingRequestBody(
     @SerializedName("element_uuid")
-    val elementUuid: ElementStatus?
+    val deliveryUuid: DeliveryStatus?
 )

@@ -3,7 +3,7 @@ package com.rosafi.test.data.model
 
 import com.google.gson.annotations.SerializedName
 
-data class Element(
+data class Delivery(
     @SerializedName("created_at")
     val createdAt: String?,
     @SerializedName("receiver_uuid")
@@ -16,4 +16,9 @@ data class Element(
     val updatedAt: String?,
     @SerializedName("uuid")
     val uuid: String?
-)
+){
+
+
+
+}
+
