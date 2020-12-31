@@ -4,4 +4,5 @@
     <string name="delivery_creation_txt">Created at :</string>
     <string name="mark_as_done_button_txt">Mark as done</string>
     <string name="deliveries_frag_title">My Deliveries</string>
+    <string name="status_updated_txt">Your delivery status has been successfully updated !</string>
 </resources>

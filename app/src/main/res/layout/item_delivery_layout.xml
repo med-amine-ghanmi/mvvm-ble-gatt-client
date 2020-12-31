@@ -12,6 +12,10 @@
             type="com.rosafi.test.data.model.Delivery"/>
 
         <variable
+            name="statusToShow"
+            type="String" />
+
+        <variable
             name="position"
             type="Integer" />
 
@@ -22,6 +26,11 @@
         <variable
             name="backgroundColor"
             type="Integer" />
+
+        <variable
+            name="viewModel"
+            type="com.rosafi.test.ui.deliveries.DeliveriesViewModel" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -85,7 +94,7 @@
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
                         android:textColor="@color/white"
-                        android:text="@{delivery.status}"
+                        android:text="@{statusToShow}"
                         android:background="@{ContextCompat.getColor(context, backgroundColor)}"
                         android:paddingEnd="4dp"
                         android:paddingStart="4dp"
@@ -135,7 +144,8 @@
                         android:visibility="@{ isDone ? View.VISIBLE : View.GONE }"
                         android:layout_marginEnd="4dp"
                         app:backgroundTint="@color/markAsDoneButtonBgColor"
-                        android:text="@string/mark_as_done_button_txt" />
+                        android:text="@string/mark_as_done_button_txt"
+                        android:onClick="@{ ()->viewModel.onMarkAsDoneButtonClicked(delivery, position)}"/>
 
 
             </LinearLayout>

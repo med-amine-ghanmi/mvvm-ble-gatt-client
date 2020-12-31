@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.rosafi.test.R
 import com.rosafi.test.databinding.DeliveriesFragmentBinding
 import com.rosafi.test.ui.deliveries.adapter.DeliveriesRecyclerViewAdapter
+import com.rosafi.test.utils.Util
 
 class DeliveriesFragment : Fragment() {
 
@@ -22,7 +23,6 @@ class DeliveriesFragment : Fragment() {
 
     private lateinit var viewModel: DeliveriesViewModel
     private lateinit var viewBinding: DeliveriesFragmentBinding
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -32,15 +32,12 @@ class DeliveriesFragment : Fragment() {
         return viewBinding.root
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         initViews()
-        initViewModel()
+        initViewModels()
 
     }
 
@@ -55,14 +52,21 @@ class DeliveriesFragment : Fragment() {
         }
     }
 
-    private fun initViewModel(){
+    private fun initViewModels(){
 
         viewModel = ViewModelProvider(this).get(DeliveriesViewModel::class.java)
+        val deliveriesRecyclerViewAdapter by lazy {DeliveriesRecyclerViewAdapter(ArrayList(), viewModel)  }
+
         viewModel.getRemoteDeliveries()
+
         viewModel.deliveriesLiveData.observe(viewLifecycleOwner, Observer {
+            deliveriesRecyclerViewAdapter.updateList(it)
+            viewBinding.deliveriesRecyclerView.adapter = deliveriesRecyclerViewAdapter
 
-            viewBinding.deliveriesRecyclerView.adapter = DeliveriesRecyclerViewAdapter(it)
-
+        })
+        viewModel.markAsDoneLiveData.observe(viewLifecycleOwner, Observer {
+            deliveriesRecyclerViewAdapter.updateDeliveryStatus(it)
+            Util.toastSuccess(requireContext(), getString(R.string.status_updated_txt))
         })
     }
 

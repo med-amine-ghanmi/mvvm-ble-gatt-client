@@ -5,5 +5,5 @@ import com.google.gson.annotations.SerializedName
 
 data class CarrierDoneResponse(
     @SerializedName("status")
-    val status: String?
+    var status: String?
 )

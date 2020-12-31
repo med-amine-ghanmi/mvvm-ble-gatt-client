@@ -1,12 +1,10 @@
 package com.rosafi.test.data.data_manager
 
-import com.rosafi.test.data.model.CarrierDoneResponse
-import com.rosafi.test.data.model.Delivery
-import com.rosafi.test.data.model.DoneRequestBody
-import com.rosafi.test.data.model.ClientDoneResponse
+import com.rosafi.test.data.model.*
 import com.rosafi.test.data.remote.RetrofitClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 
@@ -22,9 +20,9 @@ class Repository (private val retroFitClient: RetrofitClient) {
             }
         }.flowOn(Dispatchers.IO)
 
-    fun markDeliveryAsDoneByClient(doneRequestBody: DoneRequestBody) {
+    fun markDeliveryAsDoneByClient(deliveryUUID: String) {
         val confirmDeliveryByClient: Flow<ClientDoneResponse> = flow {
-            val response = retroFitClient.getRetrofitClient().confirmDeliveryByClient(doneRequestBody)
+            val response = retroFitClient.getRetrofitClient().confirmDeliveryByClient(deliveryUUID)
             if (response.isSuccessful) {
                 response.body()?.let {
                     emit(it)
@@ -35,22 +33,21 @@ class Repository (private val retroFitClient: RetrofitClient) {
     }
 
 
-    fun markDeliveryAsDoneByCarrier(doneRequestBody: DoneRequestBody) {
-        val confirmDeliveryByClient: Flow<CarrierDoneResponse> = flow {
-            val response = retroFitClient.getRetrofitClient().confirmDeliveryByCarrier(doneRequestBody)
+    fun markDeliveryAsDoneByCarrier(deliveryUUID: String) : Flow<CarrierDoneResponse>{
+       return flow {
+            val response = retroFitClient.getRetrofitClient().confirmDeliveryByCarrier(DoneRequestBody(deliveryUUID))
             if (response.isSuccessful) {
                 response.body()?.let {
                     emit(it)
-                } ?: kotlin.run {
                 }
             }
         }.flowOn(Dispatchers.IO)
     }
 
 
-    fun verifyConfirmationCode(verifyRequestBody: DoneRequestBody) {
-        val confirmDeliveryByClient: Flow<ClientDoneResponse> = flow {
-            val response = retroFitClient.getRetrofitClient().confirmDeliveryByClient(verifyRequestBody)
+    fun verifyConfirmationCode(verificationRequestBody: VerificationRequestBody) {
+        val confirmDeliveryByClient: Flow<DeliveryStatus> = flow {
+            val response = retroFitClient.getRetrofitClient().verifyConfirmationCode(verificationRequestBody)
             if (response.isSuccessful) {
                 response.body()?.let {
                     emit(it)

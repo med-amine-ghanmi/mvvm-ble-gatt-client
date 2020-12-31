@@ -5,5 +5,5 @@ import com.google.gson.annotations.SerializedName
 
 data class DoneRequestBody(
     @SerializedName("element_uuid")
-    val elementUuid: String?
+    var elementUuid: String?
 )
