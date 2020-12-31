@@ -171,7 +171,7 @@ class BleViewModel() : ViewModel() {
     fun startLeScan(){
         bluetoothAdapter.bluetoothLeScanner.startScan(mLeScanCallback);
 
-        val address = "C4:8E:8F:22:DE:22"
+        val address = "60:45:cb:06:a8:f1"
         val device = bluetoothAdapter.getRemoteDevice(address)
         if (device == null) {
             Toast.makeText(activity, "Device not found, unable to connect", Toast.LENGTH_LONG).show()
