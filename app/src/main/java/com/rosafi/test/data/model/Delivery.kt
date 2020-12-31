@@ -16,4 +16,11 @@ data class Delivery(
     val updatedAt: String?,
     @SerializedName("uuid")
     val uuid: String?
-)
+){
+
+
+    enum class DeliveryStatuses{
+        PENDING, DONE, DONE_BY_SENDER, DONE_BY_RECEIVER
+    }
+
+}
