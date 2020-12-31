@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.rosafi.test.R
 import com.rosafi.test.databinding.DeliveriesFragmentBinding
 import com.rosafi.test.ui.deliveries.adapter.DeliveriesRecyclerViewAdapter
+import com.rosafi.test.ui.deliveries.ble.BleViewModel
 import com.rosafi.test.utils.Util
 
 class DeliveriesFragment : Fragment() {
@@ -55,6 +56,12 @@ class DeliveriesFragment : Fragment() {
     private fun initViewModels(){
 
         viewModel = ViewModelProvider(this).get(DeliveriesViewModel::class.java)
+
+        val bleViewModel = ViewModelProvider(this).get(BleViewModel::class.java)
+        bleViewModel.activity = requireActivity()
+        bleViewModel.checkBleAvailability()
+        bleViewModel.checkIfBluetoothIsEnabled()
+
         val deliveriesRecyclerViewAdapter by lazy {DeliveriesRecyclerViewAdapter(ArrayList(), viewModel)  }
 
         viewModel.getRemoteDeliveries()
@@ -62,12 +69,17 @@ class DeliveriesFragment : Fragment() {
         viewModel.deliveriesLiveData.observe(viewLifecycleOwner, Observer {
             deliveriesRecyclerViewAdapter.updateList(it)
             viewBinding.deliveriesRecyclerView.adapter = deliveriesRecyclerViewAdapter
+            bleViewModel.createDeliveryService(it[0].uuid!!, it[0].senderUuid!!)
 
         })
         viewModel.markAsDoneLiveData.observe(viewLifecycleOwner, Observer {
             deliveriesRecyclerViewAdapter.updateDeliveryStatus(it)
             Util.toastSuccess(requireContext(), getString(R.string.status_updated_txt))
         })
+
+
+
+
     }
 
 
