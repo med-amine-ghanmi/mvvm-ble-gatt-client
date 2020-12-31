@@ -5,9 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rosafi.test.data.data_manager.Repository
-import com.rosafi.test.data.model.CarrierDoneResponse
-import com.rosafi.test.data.model.ClientDoneResponse
-import com.rosafi.test.data.model.Delivery
+import com.rosafi.test.data.model.*
 import com.rosafi.test.data.remote.RetrofitClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -26,9 +24,12 @@ class DeliveriesViewModel : ViewModel() {
     val deliveriesLiveData: LiveData<ArrayList<Delivery>> = _deliveriesLiveData
 
     //DeliveryDoneAction
-    private  val _markAsDoneLiveData = MutableLiveData<Int>()
-    val markAsDoneLiveData: LiveData<Int> = _markAsDoneLiveData
+    private  val _markAsDoneLiveData = MutableLiveData<Pair<Delivery, Int>>()
+    val markAsDoneLiveData: LiveData<Pair<Delivery, Int>> = _markAsDoneLiveData
 
+    //VerificationCodeLiveData
+    private  val _codeVerificationLiveData = MutableLiveData<Pair<VerificationRequestBody,DeliveryStatus>>()
+    val codeVerificationLiveData: LiveData<Pair<VerificationRequestBody, DeliveryStatus>> = _codeVerificationLiveData
 
     fun getRemoteDeliveries(){
 
@@ -40,19 +41,27 @@ class DeliveriesViewModel : ViewModel() {
 
     }
 
-   private fun markDeliveryAsDoneByCarrier(deliveryUUID: String, position: Int){
+   private fun markDeliveryAsDoneByCarrier(delivery: Delivery, position: Int){
 
         viewModelScope.launch {
-            repository.markDeliveryAsDoneByCarrier(deliveryUUID).flowOn(Dispatchers.IO).collect{
-                _markAsDoneLiveData.postValue(position)
+            repository.markDeliveryAsDoneByCarrier(delivery.uuid!!).flowOn(Dispatchers.IO).collect{
+                _markAsDoneLiveData.postValue(Pair(delivery, position))
             }
         }
     }
 
     fun onMarkAsDoneButtonClicked(delivery: Delivery, position: Int){
-        markDeliveryAsDoneByCarrier(delivery.uuid!!, position)
+        markDeliveryAsDoneByCarrier(delivery, position)
     }
 
+    fun sendVerificationCode(verificationRequestBody: VerificationRequestBody){
+
+        viewModelScope.launch {
+            repository.verifyConfirmationCode(verificationRequestBody).flowOn(Dispatchers.IO).collect{
+                _codeVerificationLiveData.postValue(Pair(verificationRequestBody,it))
+            }
+        }
+    }
 
 
 }

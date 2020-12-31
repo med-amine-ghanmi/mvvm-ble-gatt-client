@@ -13,6 +13,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import com.rosafi.test.R
+import com.rosafi.test.data.model.VerificationRequestBody
 import com.rosafi.test.databinding.DeliveriesFragmentBinding
 import com.rosafi.test.ui.deliveries.adapter.DeliveriesRecyclerViewAdapter
 import com.rosafi.test.ui.deliveries.ble.BleViewModel
@@ -73,19 +74,35 @@ class DeliveriesFragment : Fragment() {
         viewModel.deliveriesLiveData.observe(viewLifecycleOwner, Observer {
             deliveriesRecyclerViewAdapter.updateList(it)
             viewBinding.deliveriesRecyclerView.adapter = deliveriesRecyclerViewAdapter
-            bleViewModel.startAdvertising()
-            bleViewModel.startServer()
-            bleViewModel.addGattService(it[0].uuid!!, it[0].senderUuid!!)
 
         })
         viewModel.markAsDoneLiveData.observe(viewLifecycleOwner, Observer {
-            deliveriesRecyclerViewAdapter.updateDeliveryStatus(it)
+
+            deliveriesRecyclerViewAdapter.updateDeliveryStatus(it.second)
             Util.toastSuccess(requireContext(), getString(R.string.status_updated_txt))
+            bleViewModel.targetServiceUUID = it.first.uuid!!
+            bleViewModel.targetServiceUUID = it.first.senderUuid!!
+            bleViewModel.startAdvertising()
+            bleViewModel.startServer()
+            bleViewModel.addGattService(it.first.uuid!!, it.first.senderUuid!!)
+
         })
 
-        bleViewModel.confirmationLiveData.observe(viewLifecycleOwner, Observer {
-            Util.toastSuccess(requireContext(), it)
+        viewModel.codeVerificationLiveData.observe(viewLifecycleOwner, Observer {
+
+            deliveriesRecyclerViewAdapter.updateByDeliveryUUID(it.first.elementUuid.toString())
+            Util.toastSuccess(requireContext(), getString(R.string.status_updated_txt))
+            bleViewModel.stopAdvertising()
+            bleViewModel.stopServer()
+
         })
+
+
+        bleViewModel.confirmationLiveData.observe(viewLifecycleOwner, Observer {
+            viewModel.sendVerificationCode(it)
+        })
+
+
 
 
 

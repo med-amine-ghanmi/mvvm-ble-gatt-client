@@ -45,8 +45,8 @@ class Repository (private val retroFitClient: RetrofitClient) {
     }
 
 
-    fun verifyConfirmationCode(verificationRequestBody: VerificationRequestBody) {
-        val confirmDeliveryByClient: Flow<DeliveryStatus> = flow {
+    fun verifyConfirmationCode(verificationRequestBody: VerificationRequestBody): Flow<DeliveryStatus> {
+        return flow {
             val response = retroFitClient.getRetrofitClient().verifyConfirmationCode(verificationRequestBody)
             if (response.isSuccessful) {
                 response.body()?.let {

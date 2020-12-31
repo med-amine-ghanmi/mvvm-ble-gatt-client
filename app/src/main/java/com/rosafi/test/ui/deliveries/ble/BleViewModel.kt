@@ -17,6 +17,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.rosafi.test.R
 import com.rosafi.test.data.model.Delivery
+import com.rosafi.test.data.model.VerificationRequestBody
 import com.rosafi.test.utils.Util
 import java.util.*
 
@@ -29,11 +30,15 @@ class BleViewModel() : ViewModel() {
     private lateinit var bluetoothLeAdvertiser: BluetoothLeAdvertiser
     private lateinit var advertisingCallback: AdvertiseCallback
 
-    private  val _confirmationLiveData = MutableLiveData<String>()
-    val confirmationLiveData: LiveData<String> = _confirmationLiveData
+    private  val _confirmationLiveData = MutableLiveData<VerificationRequestBody>()
+    val confirmationLiveData: LiveData<VerificationRequestBody> = _confirmationLiveData
 
     private val ENABLE_BLE_REQ_CODE = 1
     lateinit var activity: Activity
+
+
+    var targetServiceUUID = ""
+    var targetCharacteristic = ""
 
     fun checkBleAvailability() {
         activity.packageManager.takeIf { it.missingSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE) }?.also {
@@ -69,7 +74,7 @@ class BleViewModel() : ViewModel() {
 
         override fun onCharacteristicWriteRequest(device: BluetoothDevice?, requestId: Int, characteristic: BluetoothGattCharacteristic?, preparedWrite: Boolean, responseNeeded: Boolean, offset: Int, value: ByteArray?) {
             super.onCharacteristicWriteRequest(device, requestId, characteristic, preparedWrite, responseNeeded, offset, value)
-            _confirmationLiveData.postValue(value.toString())
+            _confirmationLiveData.postValue(VerificationRequestBody(characteristic?.service?.uuid.toString(), String(value!!)))
 
         }
 
@@ -80,7 +85,7 @@ class BleViewModel() : ViewModel() {
 
     }
 
-        private fun stopServer() {
+        fun stopServer() {
         bluetoothGattServer.close()
 
 
@@ -158,6 +163,17 @@ class BleViewModel() : ViewModel() {
         return service
     }
 
+    /**
+     * Stop Bluetooth advertisements.
+     */
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    fun stopAdvertising() {
+        val bluetoothLeAdvertiser: BluetoothLeAdvertiser? =
+                bluetoothManager.adapter.bluetoothLeAdvertiser
+        bluetoothLeAdvertiser?.let {
+            it.stopAdvertising(advertisingCallback)
+        } ?: Log.w(TAG, "Failed to create advertiser")
+    }
 
 
 }
