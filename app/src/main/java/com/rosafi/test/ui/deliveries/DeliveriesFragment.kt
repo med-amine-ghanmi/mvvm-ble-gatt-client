@@ -51,7 +51,7 @@ class DeliveriesFragment : Fragment() {
             layoutManager = GridLayoutManager(this.context, 1)
         }
         (requireActivity() as AppCompatActivity).supportActionBar?.apply {
-            title = "My Deliveries"
+            title = getString(R.string.deliveries_frag_title)
         }
     }
 

@@ -23,4 +23,9 @@ data class Delivery(
         PENDING, DONE, DONE_BY_SENDER, DONE_BY_RECEIVER
     }
 
+
+    enum class DeliveryStatusesToShow{
+        PENDING, DONE, DONE_BY_CARRIER, DONE_BY_CLIENT
+    }
+
 }
