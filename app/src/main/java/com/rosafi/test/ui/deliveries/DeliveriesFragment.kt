@@ -1,11 +1,13 @@
 package com.rosafi.test.ui.deliveries
 
+import android.os.Build
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
@@ -34,6 +36,7 @@ class DeliveriesFragment : Fragment() {
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -53,6 +56,7 @@ class DeliveriesFragment : Fragment() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun initViewModels(){
 
         viewModel = ViewModelProvider(this).get(DeliveriesViewModel::class.java)
@@ -69,12 +73,18 @@ class DeliveriesFragment : Fragment() {
         viewModel.deliveriesLiveData.observe(viewLifecycleOwner, Observer {
             deliveriesRecyclerViewAdapter.updateList(it)
             viewBinding.deliveriesRecyclerView.adapter = deliveriesRecyclerViewAdapter
-            bleViewModel.createDeliveryService(it[0].uuid!!, it[0].senderUuid!!)
+            bleViewModel.startAdvertising()
+            bleViewModel.startServer()
+            bleViewModel.addGattService(it[0].uuid!!, it[0].senderUuid!!)
 
         })
         viewModel.markAsDoneLiveData.observe(viewLifecycleOwner, Observer {
             deliveriesRecyclerViewAdapter.updateDeliveryStatus(it)
             Util.toastSuccess(requireContext(), getString(R.string.status_updated_txt))
+        })
+
+        bleViewModel.confirmationLiveData.observe(viewLifecycleOwner, Observer {
+            Util.toastSuccess(requireContext(), it)
         })
 
 

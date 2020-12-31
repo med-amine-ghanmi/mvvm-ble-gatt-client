@@ -34,9 +34,7 @@ class DeliveriesViewModel : ViewModel() {
 
         viewModelScope.launch {
             repository.getDeliveries.flowOn(Dispatchers.IO).collect {
-
                 _deliveriesLiveData.postValue(it)
-
             }
         }
 

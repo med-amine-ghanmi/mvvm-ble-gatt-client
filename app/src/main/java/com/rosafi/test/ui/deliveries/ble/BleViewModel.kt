@@ -12,8 +12,12 @@ import android.os.ParcelUuid
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.rosafi.test.R
+import com.rosafi.test.data.model.Delivery
+import com.rosafi.test.utils.Util
 import java.util.*
 
 
@@ -24,6 +28,9 @@ class BleViewModel() : ViewModel() {
     private lateinit var bluetoothGattServer: BluetoothGattServer
     private lateinit var bluetoothLeAdvertiser: BluetoothLeAdvertiser
     private lateinit var advertisingCallback: AdvertiseCallback
+
+    private  val _confirmationLiveData = MutableLiveData<String>()
+    val confirmationLiveData: LiveData<String> = _confirmationLiveData
 
     private val ENABLE_BLE_REQ_CODE = 1
     lateinit var activity: Activity
@@ -39,7 +46,6 @@ class BleViewModel() : ViewModel() {
         bluetoothManager = activity.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         bluetoothAdapter = bluetoothManager.adapter
 
-
         if (!bluetoothAdapter.isEnabled) {
             val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
             activity.startActivityForResult(enableBtIntent, ENABLE_BLE_REQ_CODE)
@@ -49,13 +55,12 @@ class BleViewModel() : ViewModel() {
 
     // ********************************************* GattServer Logic ************************************** //
 
-    fun startServer(deliveryUUID: String, senderUUID: String) {
+    fun startServer() {
         bluetoothGattServer = bluetoothManager.openGattServer(activity, gattServerCallback)
+    }
 
+    fun addGattService(deliveryUUID: String, senderUUID: String){
         bluetoothGattServer.addService(createDeliveryService(deliveryUUID, senderUUID))
-                ?: Log.w(TAG, "Unable to create GATT server")
-
-
     }
 
 
@@ -64,28 +69,31 @@ class BleViewModel() : ViewModel() {
 
         override fun onCharacteristicWriteRequest(device: BluetoothDevice?, requestId: Int, characteristic: BluetoothGattCharacteristic?, preparedWrite: Boolean, responseNeeded: Boolean, offset: Int, value: ByteArray?) {
             super.onCharacteristicWriteRequest(device, requestId, characteristic, preparedWrite, responseNeeded, offset, value)
+            _confirmationLiveData.postValue(value.toString())
+
         }
 
         override fun onExecuteWrite(device: BluetoothDevice?, requestId: Int, execute: Boolean) {
             super.onExecuteWrite(device, requestId, execute)
-        }
 
+        }
 
     }
 
-
         private fun stopServer() {
         bluetoothGattServer.close()
+
+
     }
 
 
 
     // ********************************************* Advertiser Logic ************************************** //
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    fun startAdvertising(deliveryUUID: String){
+    fun startAdvertising(){
         initBleAdvertiseCallback()
         bluetoothLeAdvertiser = bluetoothAdapter.bluetoothLeAdvertiser
-        bluetoothLeAdvertiser.startAdvertising(initAdvertiseSettings(),initAdvertiseData(), initAdvertiseScanData(deliveryUUID), advertisingCallback)
+        bluetoothLeAdvertiser.startAdvertising(initAdvertiseSettings(),initAdvertiseData(), initAdvertiseScanData(), advertisingCallback)
     }
 
 
@@ -108,7 +116,8 @@ class BleViewModel() : ViewModel() {
                 .setConnectable(true)
                 .setTimeout(0)
                 .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_MEDIUM)
-                .build()    }
+                .build()
+    }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun initAdvertiseData() : AdvertiseData {
@@ -119,10 +128,9 @@ class BleViewModel() : ViewModel() {
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private fun initAdvertiseScanData(deliveryUUID: String) : AdvertiseData {
+    private fun initAdvertiseScanData() : AdvertiseData {
 
         return  AdvertiseData.Builder()
-                .addServiceUuid(ParcelUuid(UUID.fromString(deliveryUUID)))
                 .setIncludeTxPowerLevel(true)
                 .build()
     }
@@ -133,9 +141,10 @@ class BleViewModel() : ViewModel() {
     private fun PackageManager.missingSystemFeature(name: String): Boolean = !hasSystemFeature(name)
 
 
-    fun createDeliveryService(deliveryUUID: String, senderUUID: String): BluetoothGattService {
+    private fun createDeliveryService(deliveryUUID: String, senderUUID: String): BluetoothGattService {
         val service = BluetoothGattService(UUID.fromString(deliveryUUID),
                 BluetoothGattService.SERVICE_TYPE_PRIMARY)
+
 
 
         val serialData = BluetoothGattCharacteristic(UUID.fromString(senderUUID),
