@@ -1,5 +1,6 @@
 package com.rosafi.test.ui.activity
 
+
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
@@ -19,17 +20,20 @@ class MainActivity : AppCompatActivity() {
         initViews()
         initDeliveriesFragment()
 
+
     }
 
 
-    private fun initDeliveriesFragment(){
+    private fun initDeliveriesFragment() {
 
         supportFragmentManager.beginTransaction().add(R.id.deliveryFragmentContainer, DeliveriesFragment()).commit()
     }
 
-    private fun initViews(){
+    private fun initViews() {
 
         setSupportActionBar(viewBinding.mainActivityToolbar)
-
     }
+
+
+
 }
