@@ -38,7 +38,7 @@ class DeliveriesRecyclerViewAdapter(private val deliveriesList: ArrayList<Delive
     }
 
     private fun checkDeliveryStatus(deliveryStatus: String?): Boolean {
-        return deliveryStatus?.toUpperCase(Locale.getDefault()) != Delivery.DeliveryStatuses.DONE_BY_SENDER.toString()
+        return deliveryStatus?.toUpperCase(Locale.getDefault()) == Delivery.DeliveryStatuses.DONE_BY_SENDER.toString()
     }
 
     private fun getDeliveryStatusColor(deliveryStatus: String?) : Int{
@@ -46,7 +46,7 @@ class DeliveriesRecyclerViewAdapter(private val deliveriesList: ArrayList<Delive
     }
 
     fun updateDeliveryStatus(position: Int){
-        deliveriesList[position].status = Delivery.DeliveryStatuses.DONE_BY_SENDER.toString()
+        deliveriesList[position].status = Delivery.DeliveryStatuses.DONE_BY_RECEIVER.toString()
         notifyDataSetChanged()
     }
 

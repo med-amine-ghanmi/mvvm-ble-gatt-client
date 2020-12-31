@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import java.util.*
+import java.util.stream.Collector
 import kotlin.collections.ArrayList
 
 
@@ -26,8 +27,8 @@ class DeliveriesViewModel : ViewModel() {
     val deliveriesLiveData: LiveData<ArrayList<Delivery>> = _deliveriesLiveData
 
     //DeliveryDoneAction
-    private  val _markAsDoneLiveData = MutableLiveData<Int>()
-    val markAsDoneLiveData: LiveData<Int> = _markAsDoneLiveData
+    private  val _markAsDoneLiveData = MutableLiveData<Pair<ClientDoneResponse,Int>>()
+    val markAsDoneLiveData: LiveData<Pair<ClientDoneResponse,Int>> = _markAsDoneLiveData
 
 
     fun getRemoteDeliveries(){
@@ -42,17 +43,17 @@ class DeliveriesViewModel : ViewModel() {
 
     }
 
-   private fun markDeliveryAsDoneByCarrier(deliveryUUID: String, position: Int){
+   private fun markDeliveryAsDoneByClient(deliveryUUID: String, position: Int){
 
         viewModelScope.launch {
-            repository.markDeliveryAsDoneByCarrier(deliveryUUID).flowOn(Dispatchers.IO).collect{
-                _markAsDoneLiveData.postValue(position)
+            repository.markDeliveryAsDoneByClient(deliveryUUID).flowOn(Dispatchers.IO).collect{
+                _markAsDoneLiveData.postValue(Pair(it, position))
             }
         }
     }
 
     fun onMarkAsDoneButtonClicked(delivery: Delivery, position: Int){
-        markDeliveryAsDoneByCarrier(delivery.uuid!!, position)
+        markDeliveryAsDoneByClient(delivery.uuid!!, position)
     }
 
 

@@ -20,7 +20,7 @@ interface API {
 
     @Headers("Content-Type: application/json")
     @POST("elements/mark_as_done_by_receiver")
-    suspend fun confirmDeliveryByClient(@Body deliveryUUID: String): Response<ClientDoneResponse>
+    suspend fun confirmDeliveryByClient(@Body doneRequestBody: DoneRequestBody): Response<ClientDoneResponse>
 
     @Headers("Content-Type: application/json")
     @POST("elements/verify-code")

@@ -64,10 +64,12 @@ class DeliveriesFragment : Fragment() {
             viewBinding.deliveriesRecyclerView.adapter = deliveriesRecyclerViewAdapter
 
         })
+
         viewModel.markAsDoneLiveData.observe(viewLifecycleOwner, Observer {
-            deliveriesRecyclerViewAdapter.updateDeliveryStatus(it)
+            deliveriesRecyclerViewAdapter.updateDeliveryStatus(it.second)
             Util.toastSuccess(requireContext(), getString(R.string.status_updated_txt))
         })
+
     }
 
 

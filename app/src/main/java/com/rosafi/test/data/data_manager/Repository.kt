@@ -20,9 +20,9 @@ class Repository (private val retroFitClient: RetrofitClient) {
             }
         }.flowOn(Dispatchers.IO)
 
-    fun markDeliveryAsDoneByClient(deliveryUUID: String) {
-        val confirmDeliveryByClient: Flow<ClientDoneResponse> = flow {
-            val response = retroFitClient.getRetrofitClient().confirmDeliveryByClient(deliveryUUID)
+    fun markDeliveryAsDoneByClient(deliveryUUID: String) : Flow<ClientDoneResponse>{
+       return flow {
+            val response = retroFitClient.getRetrofitClient().confirmDeliveryByClient(DoneRequestBody(deliveryUUID))
             if (response.isSuccessful) {
                 response.body()?.let {
                     emit(it)
