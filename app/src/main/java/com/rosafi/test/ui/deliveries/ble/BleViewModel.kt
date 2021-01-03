@@ -190,6 +190,7 @@ class BleViewModel() : ViewModel() {
     object : ScanCallback(){
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
+           // if(result.device.uuids)
         }
 
         override fun onScanFailed(errorCode: Int) {
