@@ -6,4 +6,5 @@
     <string name="deliveries_frag_title">My Deliveries</string>
     <string name="status_updated_txt">Your delivery status has been successfully updated !</string>
     <string name="ble_not_supported">To use this application, your smartphone must support Bluetooth Low Energy feature !</string>
+    <string name="location_not_permitted">To use Bluetooth, please allow application to access your location !</string>
 </resources>

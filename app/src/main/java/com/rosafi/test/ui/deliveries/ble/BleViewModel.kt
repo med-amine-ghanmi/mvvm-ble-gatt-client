@@ -11,13 +11,17 @@ import android.os.Build
 import android.os.Handler
 import android.util.Base64
 import android.util.Log
+import android.util.Log.d
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat.requestPermissions
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.rosafi.test.R
 import com.rosafi.test.utils.Constants.Companion.SCAN_PERIOD
+import com.rosafi.test.utils.Util
 import java.util.*
 
 
@@ -29,6 +33,7 @@ class BleViewModel() : ViewModel() {
     private lateinit var bluetoothLeAdvertiser: BluetoothLeAdvertiser
     private lateinit var advertisingCallback: AdvertiseCallback
 
+
     private  val _confirmationLiveData = MutableLiveData<String>()
     val confirmationLiveData: LiveData<String> = _confirmationLiveData
 
@@ -37,8 +42,14 @@ class BleViewModel() : ViewModel() {
     lateinit var activity: Activity
     lateinit var dataToSend: String
 
+    var advertisedServiceUUID = ""
     var targetServiceUUID = ""
     var targetCharacteristic = ""
+
+    fun initBleAdapter(){
+        bluetoothManager = activity.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+        bluetoothAdapter = bluetoothManager.adapter
+    }
 
     fun checkBleAvailability() {
         activity.packageManager.takeIf { it.missingSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE) }?.also {
@@ -48,8 +59,8 @@ class BleViewModel() : ViewModel() {
 
     fun checkIfBluetoothIsEnabled(){
 
-        bluetoothManager = activity.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-        bluetoothAdapter = bluetoothManager.adapter
+        initBleAdapter()
+
 
         if (!bluetoothAdapter.isEnabled) {
             val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
@@ -57,6 +68,12 @@ class BleViewModel() : ViewModel() {
         }
 
     }
+
+    // ******************************* Permission Logic ****************************************//
+
+
+
+
 
     // ********************************************* GattServer Logic ************************************** //
 
@@ -171,12 +188,13 @@ class BleViewModel() : ViewModel() {
     fun startLeScan(){
         bluetoothAdapter.bluetoothLeScanner.startScan(mLeScanCallback);
 
-        val address = "60:45:cb:06:a8:f1"
-        val device = bluetoothAdapter.getRemoteDevice(address)
-        if (device == null) {
-            Toast.makeText(activity, "Device not found, unable to connect", Toast.LENGTH_LONG).show()
-        }
+//        val address = "60:45:cb:06:a8:f1"
+//        val device = bluetoothAdapter.getRemoteDevice(address)
+//        if (device == null) {
+//            Toast.makeText(activity, "Device not found, unable to connect", Toast.LENGTH_LONG).show()
+//        }
 
+        d("BLE SCANNER", "STARTED")
         val mHandler = Handler()
 
         mHandler.postDelayed(Runnable { bluetoothAdapter.bluetoothLeScanner.stopScan(mLeScanCallback) }, SCAN_PERIOD)
@@ -190,11 +208,19 @@ class BleViewModel() : ViewModel() {
     object : ScanCallback(){
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
-           // if(result.device.uuids)
+
+            d("BLE SCANNER", result?.scanRecord?.serviceUuids?.get(0).toString() )
+            if(result?.scanRecord?.serviceUuids?.get(0).toString() == advertisedServiceUUID) {
+
+                val bluetoothGattServer = result?.device?.connectGatt(activity, false, mGattCallback, BluetoothDevice.TRANSPORT_LE);
+
+            }
+
         }
 
         override fun onScanFailed(errorCode: Int) {
             super.onScanFailed(errorCode)
+            Util.toastSuccess(activity, errorCode.toString())
         }
     }
 
@@ -228,7 +254,7 @@ class BleViewModel() : ViewModel() {
                             //byte[] value = new byte[1];
                             //value[0] = (byte) (0xFF);
                             val decodedDataToSend = Base64.decode(dataToSend, Base64.DEFAULT);
-                            myCharact.setValue(decodedDataToSend)
+                            myCharact.value = decodedDataToSend
                             gatt.writeCharacteristic(myCharact)
                             Log.w(TAG, "onServicesDiscovered received: " + "data sent" + Arrays.toString("hello".toByteArray()))
                         }
