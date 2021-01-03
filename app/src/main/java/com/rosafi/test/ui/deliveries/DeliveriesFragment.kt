@@ -82,7 +82,7 @@ class DeliveriesFragment : Fragment() {
             Util.toastSuccess(requireContext(), getString(R.string.status_updated_txt))
             bleViewModel.targetServiceUUID = it.first.uuid!!
             bleViewModel.targetServiceUUID = it.first.senderUuid!!
-            bleViewModel.startAdvertising()
+            bleViewModel.startAdvertising(it.first.senderUuid!!)
             bleViewModel.startServer()
             bleViewModel.addGattService(it.first.uuid!!, it.first.senderUuid!!)
 

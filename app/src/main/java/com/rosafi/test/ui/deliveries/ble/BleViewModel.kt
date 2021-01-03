@@ -30,7 +30,7 @@ class BleViewModel() : ViewModel() {
     private lateinit var bluetoothLeAdvertiser: BluetoothLeAdvertiser
     private lateinit var advertisingCallback: AdvertiseCallback
 
-    private  val _confirmationLiveData = MutableLiveData<VerificationRequestBody>()
+    private val _confirmationLiveData = MutableLiveData<VerificationRequestBody>()
     val confirmationLiveData: LiveData<VerificationRequestBody> = _confirmationLiveData
 
     private val ENABLE_BLE_REQ_CODE = 1
@@ -41,12 +41,13 @@ class BleViewModel() : ViewModel() {
     var targetCharacteristic = ""
 
     fun checkBleAvailability() {
-        activity.packageManager.takeIf { it.missingSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE) }?.also {
-            Toast.makeText(activity, R.string.ble_not_supported, Toast.LENGTH_SHORT).show()
-        }
+        activity.packageManager.takeIf { it.missingSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE) }
+            ?.also {
+                Toast.makeText(activity, R.string.ble_not_supported, Toast.LENGTH_SHORT).show()
+            }
     }
 
-    fun checkIfBluetoothIsEnabled(){
+    fun checkIfBluetoothIsEnabled() {
 
         bluetoothManager = activity.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         bluetoothAdapter = bluetoothManager.adapter
@@ -64,17 +65,37 @@ class BleViewModel() : ViewModel() {
         bluetoothGattServer = bluetoothManager.openGattServer(activity, gattServerCallback)
     }
 
-    fun addGattService(deliveryUUID: String, senderUUID: String){
+    fun addGattService(deliveryUUID: String, senderUUID: String) {
         bluetoothGattServer.addService(createDeliveryService(deliveryUUID, senderUUID))
     }
 
 
-
     private val gattServerCallback = object : BluetoothGattServerCallback() {
 
-        override fun onCharacteristicWriteRequest(device: BluetoothDevice?, requestId: Int, characteristic: BluetoothGattCharacteristic?, preparedWrite: Boolean, responseNeeded: Boolean, offset: Int, value: ByteArray?) {
-            super.onCharacteristicWriteRequest(device, requestId, characteristic, preparedWrite, responseNeeded, offset, value)
-            _confirmationLiveData.postValue(VerificationRequestBody(characteristic?.service?.uuid.toString(), String(value!!)))
+        override fun onCharacteristicWriteRequest(
+            device: BluetoothDevice?,
+            requestId: Int,
+            characteristic: BluetoothGattCharacteristic?,
+            preparedWrite: Boolean,
+            responseNeeded: Boolean,
+            offset: Int,
+            value: ByteArray?
+        ) {
+            super.onCharacteristicWriteRequest(
+                device,
+                requestId,
+                characteristic,
+                preparedWrite,
+                responseNeeded,
+                offset,
+                value
+            )
+            _confirmationLiveData.postValue(
+                VerificationRequestBody(
+                    characteristic?.service?.uuid.toString(),
+                    String(value!!)
+                )
+            )
 
         }
 
@@ -85,24 +106,28 @@ class BleViewModel() : ViewModel() {
 
     }
 
-        fun stopServer() {
+    fun stopServer() {
         bluetoothGattServer.close()
 
 
     }
 
 
-
     // ********************************************* Advertiser Logic ************************************** //
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    fun startAdvertising(){
+    fun startAdvertising(senderUUID: String) {
         initBleAdvertiseCallback()
         bluetoothLeAdvertiser = bluetoothAdapter.bluetoothLeAdvertiser
-        bluetoothLeAdvertiser.startAdvertising(initAdvertiseSettings(),initAdvertiseData(), initAdvertiseScanData(), advertisingCallback)
+        bluetoothLeAdvertiser.startAdvertising(
+            initAdvertiseSettings(),
+            initAdvertiseData(),
+            initAdvertiseScanData(senderUUID),
+            advertisingCallback
+        )
     }
 
 
-    private fun initBleAdvertiseCallback(){
+    private fun initBleAdvertiseCallback() {
         advertisingCallback = @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
         object : AdvertiseCallback() {
             override fun onStartSuccess(settingsInEffect: AdvertiseSettings) {
@@ -116,45 +141,50 @@ class BleViewModel() : ViewModel() {
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private fun initAdvertiseSettings() : AdvertiseSettings {
+    private fun initAdvertiseSettings(): AdvertiseSettings {
         return AdvertiseSettings.Builder()
-                .setConnectable(true)
-                .setTimeout(0)
-                .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_MEDIUM)
-                .build()
+            .setConnectable(true)
+            .setTimeout(0)
+            .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_MEDIUM)
+            .build()
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private fun initAdvertiseData() : AdvertiseData {
+    private fun initAdvertiseData(): AdvertiseData {
         return AdvertiseData.Builder()
-                .setIncludeDeviceName(true)
-                .setIncludeTxPowerLevel(false)
-                .build()
+            .setIncludeDeviceName(true)
+            .setIncludeTxPowerLevel(false)
+            .build()
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private fun initAdvertiseScanData() : AdvertiseData {
+    private fun initAdvertiseScanData(serviceUUID: String): AdvertiseData {
 
-        return  AdvertiseData.Builder()
-                .setIncludeTxPowerLevel(true)
-                .build()
+        return AdvertiseData.Builder()
+            .setIncludeTxPowerLevel(true)
+            .addServiceUuid(ParcelUuid(UUID.fromString(serviceUUID)))
+            .build()
     }
-
-
 
 
     private fun PackageManager.missingSystemFeature(name: String): Boolean = !hasSystemFeature(name)
 
 
-    private fun createDeliveryService(deliveryUUID: String, senderUUID: String): BluetoothGattService {
-        val service = BluetoothGattService(UUID.fromString(deliveryUUID),
-                BluetoothGattService.SERVICE_TYPE_PRIMARY)
+    private fun createDeliveryService(
+        deliveryUUID: String,
+        senderUUID: String
+    ): BluetoothGattService {
+        val service = BluetoothGattService(
+            UUID.fromString(deliveryUUID),
+            BluetoothGattService.SERVICE_TYPE_PRIMARY
+        )
 
 
-
-        val serialData = BluetoothGattCharacteristic(UUID.fromString(senderUUID),
-                BluetoothGattCharacteristic.PROPERTY_WRITE,
-                BluetoothGattCharacteristic.PERMISSION_WRITE)
+        val serialData = BluetoothGattCharacteristic(
+            UUID.fromString(senderUUID),
+            BluetoothGattCharacteristic.PROPERTY_WRITE,
+            BluetoothGattCharacteristic.PERMISSION_WRITE
+        )
 
         service.addCharacteristic(serialData)
 
@@ -169,7 +199,7 @@ class BleViewModel() : ViewModel() {
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun stopAdvertising() {
         val bluetoothLeAdvertiser: BluetoothLeAdvertiser? =
-                bluetoothManager.adapter.bluetoothLeAdvertiser
+            bluetoothManager.adapter.bluetoothLeAdvertiser
         bluetoothLeAdvertiser?.let {
             it.stopAdvertising(advertisingCallback)
         } ?: Log.w(TAG, "Failed to create advertiser")
