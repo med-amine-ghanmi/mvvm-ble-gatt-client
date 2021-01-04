@@ -50,6 +50,10 @@ class DeliveriesRecyclerViewAdapter(private val deliveriesList: ArrayList<Delive
         notifyDataSetChanged()
     }
 
+    fun getDeliveryByPosition(position: Int) : Delivery? {
+            return deliveriesList[position]
+    }
+
     fun updateList(newDeliveriesList: ArrayList<Delivery>){
         deliveriesList.clear()
         deliveriesList.addAll(newDeliveriesList)

@@ -40,7 +40,7 @@ class BleViewModel() : ViewModel() {
     private val ENABLE_BLE_REQ_CODE = 1
 
     lateinit var activity: Activity
-    lateinit var dataToSend: String
+    var dataToSend = ""
 
     var advertisedServiceUUID = ""
     var targetServiceUUID = ""
@@ -231,7 +231,8 @@ class BleViewModel() : ViewModel() {
             val intentAction: String
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 gatt.discoverServices()
-            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+            }
+            else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
 
             }
         }

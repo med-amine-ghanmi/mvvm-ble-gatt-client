@@ -43,3 +43,5 @@ d
 4app/src/main/java/com/rosafi/test/data/remote/API.kt,2/8/28cfb05c6ed60b5108a08df47cdb67f81b8319a6
 ˆ
 Xapp/src/main/java/com/rosafi/test/ui/deliveries/adapter/DeliveriesRecyclerViewAdapter.kt,e/c/ec3c80bd60d16f021a5642504559ebc9f479278a
+s
+Capp/src/main/java/com/rosafi/test/ui/deliveries/ble/BleViewModel.kt,3/1/311eefcb5d8956b7adf28c9cbc5c7e2c51022285

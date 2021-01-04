@@ -30,6 +30,9 @@ class DeliveriesFragment : Fragment() {
     private lateinit var bleViewModel: BleViewModel
     private lateinit var viewBinding: DeliveriesFragmentBinding
     private val LOCATION_PERMISSION_REQUEST_CODE = 2
+    private val deliveriesRecyclerViewAdapter by lazy {DeliveriesRecyclerViewAdapter(ArrayList(), viewModel)  }
+    private var selectedPosition = -1
+    private var targetCharacteristic = ""
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,13 +43,18 @@ class DeliveriesFragment : Fragment() {
         return viewBinding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        initViewModels()
+
+    }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         initViews()
-        initViewModels()
 
     }
 
@@ -68,7 +76,6 @@ class DeliveriesFragment : Fragment() {
         bleViewModel = ViewModelProvider(this).get(BleViewModel::class.java)
         bleViewModel.activity = requireActivity()
 
-        val deliveriesRecyclerViewAdapter by lazy {DeliveriesRecyclerViewAdapter(ArrayList(), viewModel)  }
 
         viewModel.getRemoteDeliveries()
 
@@ -79,18 +86,30 @@ class DeliveriesFragment : Fragment() {
         })
 
         viewModel.markAsDoneLiveData.observe(viewLifecycleOwner, Observer {
+            selectedPosition = it.second
             deliveriesRecyclerViewAdapter.updateDeliveryStatus(it.second)
             Util.toastSuccess(requireContext(), getString(R.string.status_updated_txt))
+
+            bleViewModel.targetServiceUUID = deliveriesRecyclerViewAdapter.getDeliveryByPosition(selectedPosition)?.uuid.toString()
+            bleViewModel.targetCharacteristic = deliveriesRecyclerViewAdapter.getDeliveryByPosition(selectedPosition)?.receiverUuid.toString()
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                checkLocationPermission()
+            }
+            else {
+                initBLeScanner()
+            }
+
+
         })
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            checkLocationPermission()
-        }
-        else {
-            bleViewModel.initBleAdapter()
-            bleViewModel.startLeScan()
-        }
+    }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun initBLeScanner(){
+        bleViewModel.advertisedServiceUUID = deliveriesRecyclerViewAdapter.getDeliveryByPosition(selectedPosition).toString()
+        bleViewModel.initBleAdapter()
+        bleViewModel.startLeScan()
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -116,8 +135,7 @@ class DeliveriesFragment : Fragment() {
             }
 
         } else {
-            bleViewModel.initBleAdapter()
-            bleViewModel.startLeScan()
+            initBLeScanner()
         }
 
     }
@@ -135,8 +153,7 @@ class DeliveriesFragment : Fragment() {
                 if (grantResults.isNotEmpty()) {
                     for (permissionResult: Int in grantResults) {
                         if (permissionResult == PackageManager.PERMISSION_GRANTED) {
-                            bleViewModel.initBleAdapter()
-                            bleViewModel.startLeScan()
+                            initBLeScanner()
                             break
 
                         } else {
