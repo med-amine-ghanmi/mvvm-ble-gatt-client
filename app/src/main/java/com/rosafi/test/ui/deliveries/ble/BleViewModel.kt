@@ -186,9 +186,12 @@ class BleViewModel() : ViewModel() {
             UUID.fromString(senderUUID),
             BluetoothGattCharacteristic.PROPERTY_WRITE,
             BluetoothGattCharacteristic.PERMISSION_WRITE
+
         )
 
+        serialData.addDescriptor(BluetoothGattDescriptor(UUID.fromString(senderUUID), BluetoothGattDescriptor.PERMISSION_WRITE))
         service.addCharacteristic(serialData)
+
 
 
 
