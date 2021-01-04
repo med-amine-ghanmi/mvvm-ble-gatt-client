@@ -19,7 +19,6 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         //Build Config Fields
         buildConfigField "String", "API_BASE_URL", "\"$apiBaseURL\""
-        buildConfigField "String", "API_BASE_URL", "\"$myAPI\""
 
     }
 
