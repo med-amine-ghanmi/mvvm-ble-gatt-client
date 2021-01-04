@@ -299,13 +299,19 @@ class BleViewModel() : ViewModel() {
             super.onCharacteristicChanged(gatt, characteristic)
             _bleStatusLiveData.postValue("Data successfully sent")
 
-
         }
 
         override fun onCharacteristicWrite(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?, status: Int) {
             super.onCharacteristicWrite(gatt, characteristic, status)
             _bleStatusLiveData.postValue("Data successfully sent")
+
         }
+
+        override fun onDescriptorWrite(gatt: BluetoothGatt?, descriptor: BluetoothGattDescriptor?, status: Int) {
+            super.onDescriptorWrite(gatt, descriptor, status)
+        }
+
+
     }
 
 
