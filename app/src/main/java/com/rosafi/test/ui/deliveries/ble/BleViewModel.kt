@@ -17,6 +17,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.rosafi.test.R
 import com.rosafi.test.data.model.Delivery
+import com.rosafi.test.data.model.GattNotification
 import com.rosafi.test.data.model.VerificationRequestBody
 import com.rosafi.test.utils.Util
 import java.util.*
@@ -26,12 +27,12 @@ class BleViewModel() : ViewModel() {
 
     private lateinit var bluetoothManager: BluetoothManager
     private lateinit var bluetoothAdapter: BluetoothAdapter
-    private lateinit var bluetoothGattServer: BluetoothGattServer
+    lateinit var bluetoothGattServer: BluetoothGattServer
     private lateinit var bluetoothLeAdvertiser: BluetoothLeAdvertiser
     private lateinit var advertisingCallback: AdvertiseCallback
 
-    private val _confirmationLiveData = MutableLiveData<VerificationRequestBody>()
-    val confirmationLiveData: LiveData<VerificationRequestBody> = _confirmationLiveData
+    private val _confirmationLiveData = MutableLiveData<Pair<VerificationRequestBody, GattNotification>>()
+    val confirmationLiveData: LiveData<Pair<VerificationRequestBody, GattNotification>> = _confirmationLiveData
 
     private val ENABLE_BLE_REQ_CODE = 1
     lateinit var activity: Activity
@@ -91,11 +92,7 @@ class BleViewModel() : ViewModel() {
                 value
             )
             _confirmationLiveData.postValue(
-                VerificationRequestBody(
-                    characteristic?.service?.uuid.toString(),
-                    String(value!!)
-                )
-            )
+                Pair(VerificationRequestBody(characteristic?.service?.uuid.toString(), String(value!!)), GattNotification(device!!, characteristic!!, true)))
 
         }
 
@@ -104,11 +101,16 @@ class BleViewModel() : ViewModel() {
 
         }
 
+        override fun onNotificationSent(device: BluetoothDevice?, status: Int) {
+            super.onNotificationSent(device, status)
+
+        }
+
+
     }
 
     fun stopServer() {
         bluetoothGattServer.close()
-
 
     }
 

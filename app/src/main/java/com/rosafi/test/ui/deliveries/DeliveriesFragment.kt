@@ -92,6 +92,7 @@ class DeliveriesFragment : Fragment() {
 
             deliveriesRecyclerViewAdapter.updateByDeliveryUUID(it.first.elementUuid.toString())
             Util.toastSuccess(requireContext(), getString(R.string.status_updated_txt))
+            bleViewModel.bluetoothGattServer.notifyCharacteristicChanged(it.second.bluetoothDevice, it.second.characteristic, it.second.confirm)
             bleViewModel.stopAdvertising()
             bleViewModel.stopServer()
 
@@ -99,7 +100,10 @@ class DeliveriesFragment : Fragment() {
 
 
         bleViewModel.confirmationLiveData.observe(viewLifecycleOwner, Observer {
-            viewModel.sendVerificationCode(it)
+            Util.toastSuccess(requireContext(), it.first.confirmationCode.toString())
+            Util.toastSuccess(requireContext(), "Sending verification code to server ...")
+            viewModel.sendVerificationCode(it.first, it.second)
+
         })
 
 

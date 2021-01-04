@@ -1,5 +1,6 @@
 package com.rosafi.test.ui.deliveries
 
+import android.bluetooth.BluetoothDevice
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -28,8 +29,8 @@ class DeliveriesViewModel : ViewModel() {
     val markAsDoneLiveData: LiveData<Pair<Delivery, Int>> = _markAsDoneLiveData
 
     //VerificationCodeLiveData
-    private  val _codeVerificationLiveData = MutableLiveData<Pair<VerificationRequestBody,DeliveryStatus>>()
-    val codeVerificationLiveData: LiveData<Pair<VerificationRequestBody, DeliveryStatus>> = _codeVerificationLiveData
+    private  val _codeVerificationLiveData = MutableLiveData<Pair<VerificationRequestBody,GattNotification>>()
+    val codeVerificationLiveData: LiveData<Pair<VerificationRequestBody, GattNotification>> = _codeVerificationLiveData
 
     fun getRemoteDeliveries(){
 
@@ -54,11 +55,11 @@ class DeliveriesViewModel : ViewModel() {
         markDeliveryAsDoneByCarrier(delivery, position)
     }
 
-    fun sendVerificationCode(verificationRequestBody: VerificationRequestBody){
+    fun sendVerificationCode(verificationRequestBody: VerificationRequestBody, gattNotification: GattNotification){
 
         viewModelScope.launch {
             repository.verifyConfirmationCode(verificationRequestBody).flowOn(Dispatchers.IO).collect{
-                _codeVerificationLiveData.postValue(Pair(verificationRequestBody,it))
+                _codeVerificationLiveData.postValue(Pair(verificationRequestBody,gattNotification))
             }
         }
     }

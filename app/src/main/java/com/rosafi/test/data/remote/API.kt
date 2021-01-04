@@ -23,7 +23,7 @@ interface API {
     suspend fun confirmDeliveryByClient(@Body deliveryUUID: String): Response<ClientDoneResponse>
 
     @Headers("Content-Type: application/json")
-    @POST("elements/verify-code")
+    @POST("elements/verify_code")
     suspend fun verifyConfirmationCode(@Body verificationRequestBody: VerificationRequestBody): Response<DeliveryStatus>
 
 }
