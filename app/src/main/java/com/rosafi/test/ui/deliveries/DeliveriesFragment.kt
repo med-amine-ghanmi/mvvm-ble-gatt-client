@@ -92,7 +92,7 @@ class DeliveriesFragment : Fragment() {
 
             deliveriesRecyclerViewAdapter.updateByDeliveryUUID(it.first.elementUuid.toString())
             Util.toastSuccess(requireContext(), getString(R.string.status_updated_txt))
-            bleViewModel.bluetoothGattServer.notifyCharacteristicChanged(it.second.bluetoothDevice, it.second.characteristic, it.second.confirm)
+            //bleViewModel.bluetoothGattServer.notifyCharacteristicChanged(it.second.bluetoothDevice, it.second.characteristic, it.second.confirm)
             bleViewModel.stopAdvertising()
             bleViewModel.stopServer()
 
