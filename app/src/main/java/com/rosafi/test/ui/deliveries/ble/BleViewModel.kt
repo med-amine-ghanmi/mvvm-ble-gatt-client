@@ -205,7 +205,7 @@ class BleViewModel() : ViewModel() {
     fun stopAdvertising() {
         val bluetoothLeAdvertiser: BluetoothLeAdvertiser? =
             bluetoothManager.adapter.bluetoothLeAdvertiser
-        bluetoothLeAdvertiser?.let {
+             bluetoothLeAdvertiser?.let {
             it.stopAdvertising(advertisingCallback)
         } ?: Log.w(TAG, "Failed to create advertiser")
     }
