@@ -210,9 +210,9 @@ class BleViewModel() : ViewModel() {
             super.onScanResult(callbackType, result)
 
             d("BLE SCANNER", result?.scanRecord?.serviceUuids?.get(0).toString() )
-            if(result?.scanRecord?.serviceUuids?.get(0).toString() == advertisedServiceUUID) {
+           if(result?.scanRecord?.serviceUuids?.get(0).toString() == advertisedServiceUUID) {
 
-                val bluetoothGattServer = result?.device?.connectGatt(activity, false, mGattCallback, BluetoothDevice.TRANSPORT_LE);
+                result?.device?.connectGatt(activity, false, mGattCallback, BluetoothDevice.TRANSPORT_LE);
 
             }
 
@@ -243,6 +243,9 @@ class BleViewModel() : ViewModel() {
 
                 val serviceList: List<BluetoothGattService> = gatt.services
                 Log.w(TAG, "onServicesDiscovered received: " + serviceList.size + serviceList.toString())
+
+                d("BLE DISCOVERY", serviceList.toString() )
+
                 for (i in serviceList.indices) {
                     Log.w(TAG, "onServicesDiscovered received: " + serviceList[i].uuid.toString())
                 }
