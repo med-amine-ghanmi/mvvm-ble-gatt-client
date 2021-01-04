@@ -91,7 +91,8 @@ class DeliveriesFragment : Fragment() {
             Util.toastSuccess(requireContext(), getString(R.string.status_updated_txt))
 
             bleViewModel.targetServiceUUID = deliveriesRecyclerViewAdapter.getDeliveryByPosition(selectedPosition)?.uuid.toString()
-            bleViewModel.targetCharacteristic = deliveriesRecyclerViewAdapter.getDeliveryByPosition(selectedPosition)?.receiverUuid.toString()
+            bleViewModel.targetCharacteristic = deliveriesRecyclerViewAdapter.getDeliveryByPosition(selectedPosition)?.senderUuid.toString()
+            bleViewModel.dataToSend = it.first.confirmationCode.toString()
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 checkLocationPermission()
@@ -103,11 +104,18 @@ class DeliveriesFragment : Fragment() {
 
         })
 
+        bleViewModel.bleStatusLiveData.observe(viewLifecycleOwner, Observer {
+
+            Util.toastSuccess(requireContext(), it)
+
+        })
+
+
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun initBLeScanner(){
-        bleViewModel.advertisedServiceUUID = deliveriesRecyclerViewAdapter.getDeliveryByPosition(selectedPosition).toString()
+        bleViewModel.advertisedServiceUUID = deliveriesRecyclerViewAdapter.getDeliveryByPosition(selectedPosition)?.senderUuid.toString()
         bleViewModel.initBleAdapter()
         bleViewModel.startLeScan()
     }

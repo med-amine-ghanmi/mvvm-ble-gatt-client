@@ -37,6 +37,13 @@ class BleViewModel() : ViewModel() {
     private  val _confirmationLiveData = MutableLiveData<String>()
     val confirmationLiveData: LiveData<String> = _confirmationLiveData
 
+
+    private  val _bleStatusLiveData = MutableLiveData<String>()
+    val bleStatusLiveData: LiveData<String> = _bleStatusLiveData
+
+
+
+
     private val ENABLE_BLE_REQ_CODE = 1
 
     lateinit var activity: Activity
@@ -104,7 +111,6 @@ class BleViewModel() : ViewModel() {
 
         private fun stopServer() {
         bluetoothGattServer.close()
-
 
     }
 
@@ -188,6 +194,8 @@ class BleViewModel() : ViewModel() {
     fun startLeScan(){
         bluetoothAdapter.bluetoothLeScanner.startScan(mLeScanCallback);
 
+        _bleStatusLiveData.postValue("Scanning started")
+
 //        val address = "60:45:cb:06:a8:f1"
 //        val device = bluetoothAdapter.getRemoteDevice(address)
 //        if (device == null) {
@@ -208,11 +216,15 @@ class BleViewModel() : ViewModel() {
     object : ScanCallback(){
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
+            _bleStatusLiveData.postValue("Getting scanner result")
 
             d("BLE SCANNER", result?.scanRecord?.serviceUuids?.get(0).toString() )
+            d("BLE SCANNER advertise service", advertisedServiceUUID )
+            d("BLE SCANNER RESULT DEVICE", result?.device?.address.toString() )
            if(result?.scanRecord?.serviceUuids?.get(0).toString() == advertisedServiceUUID) {
 
                 result?.device?.connectGatt(activity, false, mGattCallback, BluetoothDevice.TRANSPORT_LE);
+               _bleStatusLiveData.postValue("Connecting to carrier")
 
             }
 
@@ -231,6 +243,9 @@ class BleViewModel() : ViewModel() {
             val intentAction: String
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 gatt.discoverServices()
+                _bleStatusLiveData.postValue("Discovering services")
+                bluetoothAdapter.bluetoothLeScanner.stopScan(mLeScanCallback)
+
             }
             else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
 
@@ -250,23 +265,46 @@ class BleViewModel() : ViewModel() {
                 for (i in serviceList.indices) {
                     Log.w(TAG, "onServicesDiscovered received: " + serviceList[i].uuid.toString())
                 }
+                Log.w(TAG, "onServicesDiscovered received: " + targetServiceUUID)
+
                 for (i in serviceList.indices) {
-                    for (j in serviceList[i].characteristics.indices) {
-                        Log.w(TAG, "onServicesDiscovered received: " + serviceList[i].characteristics[j].uuid)
-                        if (serviceList[i].characteristics[j].uuid.toString() == targetCharacteristic) {
-                            val myCharact = serviceList[i].characteristics[j]
-                            //byte[] value = new byte[1];
-                            //value[0] = (byte) (0xFF);
-                            val decodedDataToSend = Base64.decode(dataToSend, Base64.DEFAULT);
-                            myCharact.value = decodedDataToSend
-                            gatt.writeCharacteristic(myCharact)
-                            Log.w(TAG, "onServicesDiscovered received: " + "data sent" + Arrays.toString("hello".toByteArray()))
+                        if (serviceList[i].uuid.toString() == targetServiceUUID) {
+                            for (j in serviceList[i].characteristics.indices) {
+                                Log.w(TAG, "Characteristic display variable: " + targetServiceUUID)
+                                Log.w(TAG, "Characteristic display gatt server: " + serviceList[i].characteristics[j].uuid.toString())
+
+                                if (serviceList[i].characteristics[j].uuid.toString() == targetCharacteristic) {
+                                    Log.w(TAG, "onServicesDiscovered received: " + serviceList[i].characteristics[j].uuid)
+                                    _bleStatusLiveData.postValue("Sending data to carrier")
+                                    val myCharact = serviceList[i].characteristics[j]
+                                    //byte[] value = new byte[1];
+                                    //value[0] = (byte) (0xFF);
+                                    Log.w(TAG, "DATA TO SEND: " + dataToSend)
+                                    val decodedDataToSend = dataToSend.toByteArray()
+                                    Log.w(TAG, "DATA TO SEND byte[]: " + decodedDataToSend.toString())
+                                    myCharact.value = decodedDataToSend
+                                    _bleStatusLiveData.postValue("Sending data to carrier")
+                                    gatt.writeCharacteristic(myCharact)
+                                    Log.w(TAG, "onServicesDiscovered received: " + "data sent" + Arrays.toString("hello".toByteArray()))
+                                }
                         }
                     }
                 }
             } else {
                 Log.w(TAG, "onServicesDiscovered received: $status")
             }
+        }
+
+        override fun onCharacteristicChanged(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?) {
+            super.onCharacteristicChanged(gatt, characteristic)
+            _bleStatusLiveData.postValue("Data successfully sent")
+
+
+        }
+
+        override fun onCharacteristicWrite(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?, status: Int) {
+            super.onCharacteristicWrite(gatt, characteristic, status)
+            _bleStatusLiveData.postValue("Data successfully sent")
         }
     }
 
